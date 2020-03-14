@@ -37,7 +37,7 @@ local UnitName				= _G.UnitName
 local UnitReaction			= _G.UnitReaction
 local UnitIsUnit 			= _G.UnitIsUnit
 
-local lastCheckStatusTime 	= 0
+local lastCheckStatusTime 	= nil
 local callCheckStatus		= false
 
 local FACTION_BAR_COLORS	= _G.FACTION_BAR_COLORS
@@ -285,8 +285,8 @@ local function UpdatePlayerTarget()
 end
 
 local function CheckStatus()
-	lastCheckStatusTime = GetTime()
-	callCheckStatus = false
+	lastCheckStatusTime = GetTime();
+	callCheckStatus = false;
 	if C.frame.test then return end
 
 	CheckVisibility()
@@ -690,7 +690,7 @@ function TC2:PLAYER_ENTERING_WORLD(...)
 	self.numGroupMembers = IsInRaid() and GetNumGroupMembers() or GetNumSubgroupMembers()
 
 	-- CheckVersionOLD(self, ...)
-	CheckStatus()
+	CheckStatusDeferred()
 end
 
 function TC2:PLAYER_TARGET_CHANGED(...)
@@ -713,14 +713,14 @@ function TC2:PLAYER_REGEN_DISABLED(...)
 	UpdatePlayerTarget() -- for friendly mobs that turn hostile like vaelastrasz
 	C.frame.test = false
 	ThreatLib.RegisterCallback(self, "ThreatUpdated", CheckStatusDeferred)
-	CheckStatus()
+	CheckStatusDeferred()
 end
 
 function TC2:PLAYER_REGEN_ENABLED(...)
 	-- collectgarbage()
 	C.frame.test = false
 	ThreatLib.UnregisterCallback(self, "ThreatUpdated", CheckStatusDeferred)
-	CheckStatus()
+	CheckStatusDeferred()
 end
 
 function TC2:UNIT_THREAT_LIST_UPDATE(...)
@@ -857,7 +857,7 @@ function TC2:SetupMenu()
 			if C.frame.test then
 				TC2:TestMode()
 			else
-				CheckStatus()
+				CheckStatusDeferred()
 			end
 		end},
 		{text = L.version_check_all, notCheckable = true, func = function()
@@ -941,7 +941,7 @@ TC2.configTable = {
 					width = "full",
 					set = function(info, value)
 						C[info[1]][info[2]] = value
-						CheckStatus()
+						CheckStatusDeferred()
 					end,
 				},
 				hideSolo = {
@@ -951,7 +951,7 @@ TC2.configTable = {
 					width = "full",
 					set = function(info, value)
 						C[info[1]][info[2]] = value
-						CheckStatus()
+						CheckStatusDeferred()
 					end,
 				},
 				hideInPVP = {
@@ -961,7 +961,7 @@ TC2.configTable = {
 					width = "full",
 					set = function(info, value)
 						C[info[1]][info[2]] = value
-						CheckStatus()
+						CheckStatusDeferred()
 					end,
 				},
 				hideAlways = {
@@ -971,7 +971,7 @@ TC2.configTable = {
 					width = "full",
 					set = function(info, value)
 						C[info[1]][info[2]] = value
-						CheckStatus()
+						CheckStatusDeferred()
 					end,
 				},
 				nameplates = {
@@ -1057,7 +1057,7 @@ TC2.configTable = {
 								if C.frame.test then
 									TC2:TestMode()
 								else
-									CheckStatus()
+									CheckStatusDeferred()
 								end
 							end,
 						},
@@ -1363,7 +1363,7 @@ SlashCmdList["TC2_SLASHCMD"] = function(arg)
 
 	if arg == "toggle" then
 		C.general.hideAlways = not C.general.hideAlways
-		CheckStatus();
+		CheckStatusDeferred();
 	elseif arg == "debug" then
 		ThreatLib.DebugEnabled = not ThreatLib.DebugEnabled
 		
